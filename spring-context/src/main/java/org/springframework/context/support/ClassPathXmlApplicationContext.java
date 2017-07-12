@@ -138,8 +138,10 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 			throws BeansException {
 
 		super(parent);
+		//保存spring的配置文件的位置 例如‘applicationContext.xml’
 		setConfigLocations(configLocations);
 		if (refresh) {
+			//加载xml->解析成BeanDefinition->注册到beanFactory的map中->递归初始化bean
 			refresh();
 		}
 	}
