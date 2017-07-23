@@ -446,42 +446,45 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	public void refresh() throws BeansException, IllegalStateException {
+		//加锁 初始化bean
 		synchronized (this.startupShutdownMonitor) {
-			// Prepare this context for refreshing.
+			//记录启动时间，设置启动标志
 			prepareRefresh();
 
-			// Tell the subclass to refresh the internal bean factory.
+			// 创建beanFactory->解析spring的xml文件->获取bean的definition,注册到beanFactory上
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// Prepare the bean factory for use in this context.
+			// 为beanFactory配置容器属性，例如类加载器，事件处理器等
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// Allows post-processing of the bean factory in context subclasses.
+				// 内容为空 留给子类去覆写
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
+				// 调用子类context中每个BeanFactoryPostProcessor的postProcessBeanFactory
+				// 修改容器中bean的定义，例如PropertyPlaceholderConfigurer 用来修改xml中的占位符（${}）
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
+				// 为BeanFactory注册BeanPostProcessor
+				// 每个bean创建后调用BeanPostProcessor来包装bean,例如AspectJAwareAdvisorAutoProxyCreator,通过aop的代理对象来包装target bean
 				registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				//初始化信息源 用于国际化
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
+				//初始化容器事件传播器
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				//调用子类的某些特殊Bean初始化方法
 				onRefresh();
 
-				// Check for listener beans and register them.
+				//为事件传播器注册事件监听器.
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				//初始化剩余的非懒加载的单例bean
 				finishBeanFactoryInitialization(beanFactory);
 
-				// Last step: publish corresponding event.
+				//初始化容器的生命周期事件处理器，并发布容器的生命周期事件
 				finishRefresh();
 			}
 
@@ -939,6 +942,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.freezeConfiguration();
 
 		// Instantiate all remaining (non-lazy-init) singletons.
+		// 初始化所有剩余的非懒加载的单例bean
 		beanFactory.preInstantiateSingletons();
 	}
 
