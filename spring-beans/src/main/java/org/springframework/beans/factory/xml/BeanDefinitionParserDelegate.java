@@ -1424,11 +1424,14 @@ public class BeanDefinitionParserDelegate {
 
 	public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
 		String namespaceUri = getNamespaceURI(ele);
+		// 根据xml定义的namespaceUri从spring.handlers文件中找出对应的namespaceHandler
+		// aop对应handler是AopNamespaceHandler;tx的handler是TxNamespaceHandler
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
+		// namespaceUri对应handler去解析xml的元素
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 

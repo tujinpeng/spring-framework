@@ -225,6 +225,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 		else {
 			// Can only load single resources by absolute URL.
 			Resource resource = resourceLoader.getResource(location);
+			// 根据resource的地址加载bean定义，具体的交给子类XmlBeanDefinitionReader完成beanDefinition初始化动作
 			int loadCount = loadBeanDefinitions(resource);
 			if (actualResources != null) {
 				actualResources.add(resource);

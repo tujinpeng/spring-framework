@@ -70,6 +70,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * registered for that {@link Element}.
 	 */
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 根据xml元素的localName找到对应的praser来解析element 例如<aop:config>元素用ConfigBeanDefinitionParser解析
 		return findParserForElement(element, parserContext).parse(element, parserContext);
 	}
 
