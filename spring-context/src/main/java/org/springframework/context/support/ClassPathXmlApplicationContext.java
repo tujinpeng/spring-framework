@@ -134,7 +134,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 			throws BeansException {
 
 		super(parent);
-		//加载spring的配置文件 例如“applicationContext.xml”
+		// 加载spring的配置文件 例如“applicationContext.xml”
 		setConfigLocations(configLocations);
 		if (refresh) {
 			//初始化bean
