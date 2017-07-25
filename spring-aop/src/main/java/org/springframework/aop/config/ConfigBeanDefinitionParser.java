@@ -102,7 +102,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 
 
 		// 创建Aop代理生成的核心类AspectJAwareAdvisorAutoProxyCreator的定义
-		// AspectJAwareAdvisorAutoProxyCreator是个BeanPostProcessor实现，用于bean创建的后置
+		// AspectJAwareAdvisorAutoProxyCreator是个BeanPostProcessor实现，用于bean创建的后置调用
 		configureAutoProxyCreator(parserContext, element);
 
 		List<Element> childElts = DomUtils.getChildElements(element);
