@@ -321,6 +321,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyConfig
 		if (bean != null) {
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			if (!this.earlyProxyReferences.containsKey(cacheKey)) {
+				// 每个bean初始化后调用，判断是否需要生成aop代理来包装原来的bean
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
 		}

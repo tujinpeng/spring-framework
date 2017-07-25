@@ -100,20 +100,22 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 				new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
 
-
 		// 创建Aop代理生成的核心类AspectJAwareAdvisorAutoProxyCreator的定义
-		// AspectJAwareAdvisorAutoProxyCreator是个BeanPostProcessor实现，用于bean创建的后置调用
+		// AspectJAwareAdvisorAutoProxyCreator是个BeanPostProcessor实现,每个bean初始化后，调用其postProcessAfterInitialization判断是否需要生成aop的代理
 		configureAutoProxyCreator(parserContext, element);
 
 		List<Element> childElts = DomUtils.getChildElements(element);
 		for (Element elt: childElts) {
 			String localName = parserContext.getDelegate().getLocalName(elt);
+			//解析pointcut元素,注册到beanFactory的beanDefinitionMap中
 			if (POINTCUT.equals(localName)) {
 				parsePointcut(elt, parserContext);
 			}
+			//解析advisor元素以及它聚合的pointcut元素,注册到beanFactory的beanDefinitionMap中
 			else if (ADVISOR.equals(localName)) {
 				parseAdvisor(elt, parserContext);
 			}
+			//解析aspect元素以及它聚合的pointcut、advice元素,注册到beanFactory的beanDefinitionMap中
 			else if (ASPECT.equals(localName)) {
 				parseAspect(elt, parserContext);
 			}
