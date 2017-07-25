@@ -100,6 +100,9 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 				new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
 
+
+		// 创建Aop代理生成的核心类AspectJAwareAdvisorAutoProxyCreator的定义
+		// AspectJAwareAdvisorAutoProxyCreator是个BeanPostProcessor实现，用于bean创建的后置
 		configureAutoProxyCreator(parserContext, element);
 
 		List<Element> childElts = DomUtils.getChildElements(element);

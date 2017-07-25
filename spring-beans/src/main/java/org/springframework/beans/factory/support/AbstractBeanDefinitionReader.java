@@ -241,6 +241,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 		Assert.notNull(locations, "Location array must not be null");
 		int counter = 0;
 		for (String location : locations) {
+			// 载入每一个location
 			counter += loadBeanDefinitions(location);
 		}
 		return counter;
