@@ -358,7 +358,6 @@ public abstract class AbstractAutoProxyCreator extends ProxyConfig
 			return bean;
 		}
 
-		// Create proxy if we have advice.
 		// 判断bean是否匹配切面，若匹配上获取适合bean的拦截器list
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
