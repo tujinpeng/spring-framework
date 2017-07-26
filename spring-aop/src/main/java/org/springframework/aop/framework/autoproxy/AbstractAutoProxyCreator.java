@@ -359,9 +359,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyConfig
 		}
 
 		// Create proxy if we have advice.
+		// 判断bean是否匹配切面，若匹配上获取适合bean的拦截器list
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 获取到bean的拦截器链后，组合拦截器链，目标bean，通过ProxyFactory生成jdk动态代理
+			// 最终生成JdkDynamicAopProxy代理对象(聚合了目标bean和匹配的拦截器链)，bean方法调用会直接调用JdkDynamicAopProxy.invoke()
 			Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
