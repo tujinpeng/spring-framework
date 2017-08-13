@@ -601,6 +601,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	public void preInstantiateSingletons() throws BeansException {
+		// 打印beanFactory中的bean名字,开始初始化
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Pre-instantiating singletons in " + this);
 		}
