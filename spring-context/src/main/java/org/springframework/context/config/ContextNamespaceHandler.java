@@ -28,12 +28,15 @@ import org.springframework.context.annotation.ComponentScanBeanDefinitionParser;
  * @author Juergen Hoeller
  * @since 2.5
  */
+//context标签处理器
 public class ContextNamespaceHandler extends NamespaceHandlerSupport {
 
 	public void init() {
 		registerBeanDefinitionParser("property-placeholder", new PropertyPlaceholderBeanDefinitionParser());
 		registerBeanDefinitionParser("property-override", new PropertyOverrideBeanDefinitionParser());
+		//属性注解(@Autowired)处理解析器
 		registerBeanDefinitionParser("annotation-config", new AnnotationConfigBeanDefinitionParser());
+		//自动bean注解(@Service @Compoent @Repository @Controller)的解析器
 		registerBeanDefinitionParser("component-scan", new ComponentScanBeanDefinitionParser());
 		registerBeanDefinitionParser("load-time-weaver", new LoadTimeWeaverBeanDefinitionParser());
 		registerBeanDefinitionParser("spring-configured", new SpringConfiguredBeanDefinitionParser());

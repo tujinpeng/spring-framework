@@ -50,6 +50,7 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @since 2.5
  */
+//自动bean注解(@Service @Compoent @Repository)的解析器
 public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String BASE_PACKAGE_ATTRIBUTE = "base-package";
@@ -75,13 +76,24 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String FILTER_EXPRESSION_ATTRIBUTE = "expression";
 
 
+	/**
+	 * 解析context的component-scan标签,扫描出指定路径下带有bean注解的class,将这些class生成的bean定义自动注册到bean工厂里
+	 * @param element the element that is to be parsed into one or more {@link BeanDefinition BeanDefinitions}
+	 * @param parserContext the object encapsulating the current state of the parsing process;
+	 * provides access to a {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}
+     * @return
+     */
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		//1.解析包扫描路径
 		String[] basePackages = StringUtils.tokenizeToStringArray(element.getAttribute(BASE_PACKAGE_ATTRIBUTE),
 				ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
 
 		// Actually scan for bean definitions and register them.
+		//2.创建扫描器scanner,通过扫描包路径下的class文件过滤出带有@Component注解的class,从而生成对应的beanDefinitions注册到beanFacroty中
 		ClassPathBeanDefinitionScanner scanner = configureScanner(parserContext, element);
 		Set<BeanDefinitionHolder> beanDefinitions = scanner.doScan(basePackages);
+
+		//3.设置bean定义注册后的通知事件listener
 		registerComponents(parserContext.getReaderContext(), beanDefinitions, element);
 
 		return null;
