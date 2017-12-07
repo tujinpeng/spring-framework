@@ -451,40 +451,59 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			//记录启动时间，设置启动标志
 			prepareRefresh();
 
-			// 创建beanFactory->解析spring的xml文件->获取bean的definition,注册到beanFactory上
+			/*
+			 * 1.加载bean的定义,注册到beanFactory上
+			 */
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// 为beanFactory配置容器属性，例如类加载器，事件处理器等
+			// 为创建beanFactory中bean做些准备工作,先配置容器属性，例如类加载器，beanPostProcessor等
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// 内容为空 留给子类去覆写
 				postProcessBeanFactory(beanFactory);
 
-				// 调用子类context中每个BeanFactoryPostProcessor的postProcessBeanFactory
-				// 修改容器中bean的定义，例如PropertyPlaceholderConfigurer 用来修改xml中的占位符（${}）
+				/*
+				 * 2.bean定义完成的后置处理【BeanFactoryPostProcesser】:
+				 * 调用所有BeanFactoryPostProcesser实现,用于对beanDefinition的修改
+				 * 例如:
+				 *   (1)spring的PropertyPlaceholderConfigurer 用来修改bean定义属性中占位符（${}）
+				 *   (2)mybatis的ClassPathMapperScanner 用来等spring所有的bean定义加载完后,加载mybatis自己的要生成mapper代理的factoryBean定义
+				 */
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// 为BeanFactory注册BeanPostProcessor
-				// 每个bean创建后调用BeanPostProcessor来包装bean,例如AspectJAwareAdvisorAutoProxyCreator,通过aop的代理对象来包装target bean
+				/*
+				 * 注册些必要的bean后置通知【BeanPostProcessor】
+				 * 例如:
+				 *    AspectJAwareAdvisorAutoProxyCreator:持有所有的切面配置,每个bean初始化的时候调用,匹配bean生成AOP动态代理
+				 */
 				registerBeanPostProcessors(beanFactory);
 
 				//初始化信息源 用于国际化
 				initMessageSource();
 
-				//初始化容器事件传播器
+				//初始化bean创建完成后的事件传播器
 				initApplicationEventMulticaster();
 
 				//调用子类的某些特殊Bean初始化方法
 				onRefresh();
 
-				//为事件传播器注册事件监听器.
+				//向bean创建完成后的事件传播器,注册事件监听器
 				registerListeners();
 
-				//初始化剩余的非懒加载的单例bean
+				/*
+				 *3.创建bean:
+				 * 	根据bean的定义(属性，方法)，通过反射或者factoryBean方式创建非单例的bean
+				 */
 				finishBeanFactoryInitialization(beanFactory);
 
-				//初始化容器的生命周期事件处理器，并发布容器的生命周期事件
+				/*
+				 *4.bean全部创建完成后的事件通知
+				 * 	调用所有的【ApplicationListener】实现完成通知
+				 * 	例如:
+				 *    springmvc的org.springframework.web.servlet.FrameworkServlet.ContextRefreshListener:
+				 *    当bean全部创建完成后,初始化web的url和controller的映射 handerMapping
+				 */
 				finishRefresh();
 			}
 
