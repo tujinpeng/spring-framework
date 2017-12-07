@@ -109,18 +109,36 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 * @param namespaceUri the relevant namespace URI
 	 * @return the located {@link NamespaceHandler}, or {@code null} if none found
 	 */
+	//根据配置文件中的映射关系,通过namespaceUri查找对应的NamespaceHandler
 	public NamespaceHandler resolve(String namespaceUri) {
-		// 加载命名空间和handler的映射文件spring.handlers
+		/*
+		 * 1.获取handler映射表:
+		 *
+		 * -通过类加载器扫描本工程classpath下所有spring.handlers文件:
+		 * 	    /WEB-INF/lib/activemq-core-5.5.1.jar!/META-INF/spring.handlers
+		 * 		/WEB-INF/lib/mybatis-spring-1.2.0.jar!/META-INF/spring.handlers
+		 * 	    /WEB-INF/lib/spring-aop-3.2.1.RELEASE.jar!/META-INF/spring.handler
+		 *
+		 * -生成【namespaceuri-> NamespaceHandler class】的映射表:
+		 *      "http://www.springframework.org/schema/jdbc" -> "org.springframework.jdbc.config.JdbcNamespaceHandler"
+		 *	    "http://www.springframework.org/schema/aop" -> "org.springframework.aop.config.AopNamespaceHandler"
+		 *	    "http://code.alibabatech.com/schema/dubbo" -> "com.alibaba.dubbo.config.spring.schema.DubboNamespaceHandler"
+		 *
+		 * -映射关系只在第一次初始化,放入缓存handlerMappings中
+		 */
 		Map<String, Object> handlerMappings = getHandlerMappings();
+		//2. 通过namespaceUri获取namespaceHandler
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);
+		//若映射中没有,则无此处理器
 		if (handlerOrClassName == null) {
 			return null;
 		}
+		//若对象的类型是NamespaceHandler,表示该命名空间的处理器对象已经初始化过了,直接返回
 		else if (handlerOrClassName instanceof NamespaceHandler) {
 			return (NamespaceHandler) handlerOrClassName;
 		}
+		//此时命名空间处理器对象已经还没初始化,通过反射根据类名字创建对象
 		else {
-			// 反射初始化namespaceUri对应的handler
 			String className = (String) handlerOrClassName;
 			try {
 				Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);
@@ -128,10 +146,11 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 					throw new FatalBeanException("Class [" + className + "] for namespace [" + namespaceUri +
 							"] does not implement the [" + NamespaceHandler.class.getName() + "] interface");
 				}
+				// 通过反射创建namespaceUri对应的handler对象
 				NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.instantiateClass(handlerClass);
-				// 初始化解析器map
+				// 初始化handler的所有标签解析器parsers
 				namespaceHandler.init();
-				// 将初始化的handler放入缓存中
+				// 将初始化好的handler放入缓存中
 				handlerMappings.put(namespaceUri, namespaceHandler);
 				return namespaceHandler;
 			}

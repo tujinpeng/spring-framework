@@ -496,8 +496,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		documentReader.setEnvironment(getEnvironment());
 		int countBefore = getRegistry().getBeanDefinitionCount();
-		// createReaderContext（）为documentReader创建readerContext，初始化命名空间处理器namespaceHandlerResolver（解析不同的xml标签），例如aop标签由AopNamespaceHandler解析
-		// 解析dom，注册bean的定义
+		/*
+		 * createReaderContext():
+		 * 		为documentReader创建readerContext，
+		 * 		创建namespaceHandlerResolver(用于注册【xml元素namespace->NamespaceHandler】的映射关系)，例如aop标签由AopNamespaceHandler解析
+		 * 解析dom，注册bean的定义
+		 */
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}

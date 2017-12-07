@@ -1424,14 +1424,22 @@ public class BeanDefinitionParserDelegate {
 
 	public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
 		String namespaceUri = getNamespaceURI(ele);
-		// 根据xml定义的namespaceUri从spring.handlers文件中找出对应的namespaceHandler
-		// aop对应handler是AopNamespaceHandler;tx的handler是TxNamespaceHandler
+		/*
+		 * namespaceHandlerResolver注册有namespace和handler的映射关系
+		 * 从namespaceHandlerResolver中根据元素的namespace查找对应的NamespaceHandler(处理器)
+		 * e.g:
+		 * 	aop标签的处理器为AopNamespaceHandler
+		 */
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
-		// namespaceUri对应handler去解析xml的元素
+		/*
+		 * NamespaceHandler中针对不同name的标签注册了不同的BeanDefinitionParser(bean定义的解析器)
+		 * e.g:
+		 * 		<aop:config>标签元素 : 由ConfigBeanDefinitionParser解析
+		 */
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 
