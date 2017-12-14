@@ -228,7 +228,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			final String name, final Class<T> requiredType, final Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
-		// 获取真实的beanName 剔除掉factoryBean的前缀‘&’
+		// 获取真实的beanName 剔除掉factoryBean的前缀‘&’ 如果是别名的转换成真实名字
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
@@ -245,6 +245,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			//若是factoryBean,获取factoryBean包装的对象
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -305,7 +306,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							}
 						}
 					});
-					// 判断bean的类型是FactoryBean的，调用其getObject方法创建真实的bean
+					//若是factoryBean,获取factoryBean包装的对象
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
@@ -1434,6 +1435,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	}
 
 	/**
+	 * 获取factoryBean创建的对象
 	 * Get the object for the given bean instance, either the bean
 	 * instance itself or its created object in case of a FactoryBean.
 	 * @param beanInstance the shared bean instance
@@ -1453,15 +1455,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		/*
+		 * 若是正常bean或者要访问的是factoryBean的名字("&factoryBeanName") ,则这里直接返回
+		 */
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
 		Object object = null;
 		if (mbd == null) {
+			//先从beanFactory中的factoryBeanObjectCache缓存中,获取实例
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {
+			//没有则调用factoryBean实例的getObject方法,返回实例
 			// Return bean instance from factory.
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
 			// Caches object obtained from FactoryBean if it is a singleton.

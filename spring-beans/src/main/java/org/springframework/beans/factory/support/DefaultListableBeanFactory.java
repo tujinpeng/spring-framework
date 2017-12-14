@@ -620,9 +620,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			//判断是非抽象，是单例，非懒加载的bean才初始化
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
-				//若bean的类型是FactoryBean，则调用它的getBean方法创建bean
+				//若bean的类型是FactoryBean，实例化factoryBean,不创建它的包装对象(依赖它的对象负责创建)
 				if (isFactoryBean(beanName)) {
-					//调用beanFactory.getBean()，创建bean
 					final FactoryBean<?> factory = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);//定义factoryBean的名字为‘&’+beanName
 					boolean isEagerInit;
 					if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
@@ -640,9 +639,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						getBean(beanName);
 					}
 				}
-				//否则通过反射创建创建bean
+				//非factoryBean对象创建
 				else {
-					//调用beanFactory.getBean()，创建bean
 					getBean(beanName);
 				}
 			}
